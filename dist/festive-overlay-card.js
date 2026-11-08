@@ -7,7 +7,7 @@
  * MIT License
  */
 
-const CARD_VERSION = "0.1.0";
+const CARD_VERSION = "0.1.1";
 
 const SNOW_LEVELS = {
   light: { near: 0.55, far: 0.4, speedNear: 22, speedFar: 14 },
@@ -105,14 +105,14 @@ function buildStyles(cfg) {
 
     /* String lights: a drooping wire with red, green and gold bulbs. */
     .wire {
-      position: absolute; top: 0; left: 0; right: 0; height: 34px; z-index: 1;
+      position: absolute; top: var(--festive-top, 0px); left: 0; right: 0; height: 34px; z-index: 1;
       background:
         radial-gradient(circle at 40px 13px, #1d2e22 0 3.5px, transparent 4px) 0 0 / 160px 34px repeat-x,
         radial-gradient(circle at 80px 17px, #1d2e22 0 3.5px, transparent 4px) 0 0 / 160px 34px repeat-x,
         radial-gradient(circle at 120px 13px, #1d2e22 0 3.5px, transparent 4px) 0 0 / 160px 34px repeat-x,
         radial-gradient(80px 17px at 50% 0, transparent 91%, rgba(30,70,38,.95) 92.5%, rgba(30,70,38,.95) 100%, transparent 101%) 0 0 / 160px 34px repeat-x;
     }
-    .bulbs { position: absolute; top: 0; left: 0; right: 0; height: 50px; z-index: 2; }
+    .bulbs { position: absolute; top: var(--festive-top, 0px); left: 0; right: 0; height: 50px; z-index: 2; }
     .bulbs::before, .bulbs::after {
       content: ""; position: absolute; inset: 0;
       background-repeat: repeat-x; background-size: 160px 50px;
@@ -182,6 +182,9 @@ class FestiveOverlayCard extends HTMLElement {
     if (cfg.snow && !SNOW_LEVELS[cfg.snow]) {
       throw new Error("'snow' must be light, normal or heavy");
     }
+    if (cfg.lights_top !== undefined && !Number.isFinite(Number(cfg.lights_top))) {
+      throw new Error("'lights_top' must be a number of pixels");
+    }
     if (cfg.season && (parseDay(cfg.season.from) === null || parseDay(cfg.season.to) === null)) {
       throw new Error("'season' needs from/to as MM-DD, e.g. from: 12-01, to: 01-06");
     }
@@ -192,6 +195,7 @@ class FestiveOverlayCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     this._update();
+    this._placeLights();
   }
 
   // Home Assistant sets these while the dashboard is being edited.
@@ -203,6 +207,50 @@ class FestiveOverlayCard extends HTMLElement {
   set preview(value) {
     this._editing = Boolean(value);
     this._update(true);
+  }
+
+  connectedCallback() {
+    this._onResize = () => this._placeLights();
+    window.addEventListener("resize", this._onResize);
+    this._placeLights();
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener("resize", this._onResize);
+    this._huiRoot = null;
+  }
+
+  /** The dashboard root this card lives in, found by climbing the shadow roots. */
+  _findHuiRoot() {
+    let node = this;
+    for (let i = 0; i < 30 && node; i += 1) {
+      const root = node.getRootNode();
+      if (!root || root === document) return null;
+      node = root.host;
+      if (node && node.tagName === "HUI-ROOT") return node;
+    }
+    return null;
+  }
+
+  /** Hang the string lights just below the dashboard header (or at the very top when it is hidden). */
+  _placeLights() {
+    if (!this._config) return;
+    let top = 0;
+    if (this._config.lights_top !== undefined) {
+      top = Number(this._config.lights_top) || 0;
+    } else {
+      if (!this._huiRoot || !this._huiRoot.isConnected) this._huiRoot = this._findHuiRoot();
+      const header = this._huiRoot && this._huiRoot.shadowRoot
+        ? this._huiRoot.shadowRoot.querySelector(".header") : null;
+      if (header) {
+        const rect = header.getBoundingClientRect();
+        top = rect.height > 0 ? Math.max(0, Math.round(rect.bottom)) : 0;
+      }
+    }
+    if (top !== this._lightsTop) {
+      this._lightsTop = top;
+      this.style.setProperty("--festive-top", `${top}px`);
+    }
   }
 
   getCardSize() {

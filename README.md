@@ -60,6 +60,7 @@ Want it on every page? Add the card to each view — or to one view and use it a
 | `state` | `on` | The state (or list of states) that shows the overlay. |
 | `season` | — | `from` / `to` as `MM-DD`. The window may cross the new year (`12-01` → `01-06`). |
 | `snow` | `normal` | `light`, `normal` or `heavy`. |
+| `lights_top` | auto | Where the string lights hang, in pixels from the top. By default they sit just below the dashboard header, or at the very top when the header is hidden (kiosk mode). |
 | `z_index` | `3` | Raise it if a card covers the snow, lower it (or `-1`) to keep the snow behind cards. |
 | `respect_reduced_motion` | `true` | Stops the animations when the device asks for reduced motion. |
 
