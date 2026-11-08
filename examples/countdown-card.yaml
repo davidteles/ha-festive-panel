@@ -1,0 +1,52 @@
+# Christmas countdown card (needs Mushroom: https://github.com/piitaya/lovelace-mushroom
+# and card-mod: https://github.com/thomasloven/lovelace-card-mod for the festive look).
+# Replace light.christmas_tree with your own tree light and script.toggle_tree
+# with any toggle action you like (or use tap_action: toggle).
+type: custom:mushroom-template-card
+entity: light.christmas_tree
+icon: mdi:pine-tree
+icon_color: "{{ 'green' if is_state(entity, 'on') else 'grey' }}"
+multiline_secondary: true
+primary: >-
+  {%- set t = now() -%}
+  {{ 'Christmas Eve! 🎅' if (t.month == 12 and t.day == 24)
+     else 'Merry Christmas! 🎄' if (t.month == 12 and t.day == 25)
+     else ('The tree is lit ✨' if is_state(entity, 'on') else 'Christmas tree') }}
+secondary: >-
+  {%- set t = now().date() -%}
+  {%- set d = (as_datetime(t.year ~ '-12-25').date() - t).days -%}
+  {%- set msg -%}
+  {% if t.month == 12 and t.day == 24 %}Christmas is tomorrow 🎁
+  {% elif t.month == 12 and t.day == 25 %}Today is Christmas Day ✨
+  {% elif t.month == 12 and t.day > 25 %}Happy holidays ✨
+  {% elif t.month == 1 and t.day <= 10 %}Happy New Year ✨
+  {% elif t.month in [11, 12] %}{{ d }} days to Christmas{% endif %}
+  {%- endset -%}
+  {%- set tap = 'tap to switch off' if is_state(entity, 'on') else 'tap to light it' -%}
+  {{ (msg | trim ~ ' · ' ~ tap) if msg | trim else (tap[:1] | upper ~ tap[1:]) }}
+tap_action:
+  action: toggle
+hold_action:
+  action: more-info
+card_mod:
+  style: |
+    {% if is_state(config.entity, 'on') or (now().month == 12 and now().day in [24, 25]) %}
+    ha-card {
+      background: linear-gradient(135deg, rgba(150, 20, 30, 0.55), rgba(20, 95, 50, 0.55)) !important;
+      border: 1px solid rgba(255, 210, 120, 0.6) !important;
+      box-shadow: 0 0 24px rgba(255, 190, 80, 0.28) !important;
+    }
+    ha-state-icon {
+      transform-origin: 50% 85%;
+      animation: xmas-sway 3.2s ease-in-out infinite, xmas-twinkle 2.4s linear infinite;
+    }
+    @keyframes xmas-sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+    @keyframes xmas-twinkle {
+      0%   { color: #43a047; filter: drop-shadow(0 0 3px #ffd54f); }
+      25%  { color: #66bb6a; filter: drop-shadow(0 0 9px #ff5252); }
+      50%  { color: #43a047; filter: drop-shadow(0 0 9px #ffd54f); }
+      75%  { color: #81c784; filter: drop-shadow(0 0 9px #40c4ff); }
+      100% { color: #43a047; filter: drop-shadow(0 0 3px #ffd54f); }
+    }
+    @media (prefers-reduced-motion: reduce) { ha-state-icon { animation: none; } }
+    {% endif %}

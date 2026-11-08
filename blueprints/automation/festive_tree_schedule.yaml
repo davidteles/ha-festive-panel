@@ -1,0 +1,153 @@
+blueprint:
+  name: Festive tree schedule
+  description: >-
+    Lights the Christmas tree (or any festive light) before sunset when someone
+    is home, switches it on when someone arrives in the evening, off when
+    everyone leaves, and off at a set time every night — except the special
+    nights you list (for example Christmas Eve and New Year's Eve).
+
+
+    The automation does nothing while the tree is unplugged (unavailable), so
+    it can stay enabled all year.
+  domain: automation
+  source_url: https://github.com/davidteles/ha-festive-panel/blob/main/blueprints/automation/festive_tree_schedule.yaml
+  input:
+    tree:
+      name: Tree light
+      description: The light or switch that powers the tree.
+      selector:
+        entity:
+          filter:
+            - domain: [light, switch]
+    home_zone:
+      name: Home zone
+      description: Counts how many people are home.
+      default: zone.home
+      selector:
+        entity:
+          filter:
+            - domain: zone
+    people:
+      name: People
+      description: Arrivals of these people switch the tree on in the evening.
+      default: []
+      selector:
+        entity:
+          multiple: true
+          filter:
+            - domain: person
+    sunset_offset:
+      name: Sunset offset
+      description: >-
+        When the tree comes on, relative to sunset. Negative is before sunset
+        (the default, -15 minutes).
+      default: "-00:15:00"
+      selector:
+        duration:
+          allow_negative: true
+    off_time:
+      name: Switch-off time
+      description: The tree goes off at this time every night.
+      default: "00:00:00"
+      selector:
+        time: {}
+    late_nights:
+      name: Late nights
+      description: >-
+        Evenings (MM-DD) when the tree stays on past the switch-off time,
+        separated by commas. The date is the evening, not the morning after.
+      default: "12-24, 12-25, 12-31"
+      selector:
+        text: {}
+
+mode: queued
+max: 5
+
+variables:
+  tree_entity: !input tree
+  off_time_input: !input off_time
+  late_nights_input: !input late_nights
+  late_nights_list: >-
+    {{ late_nights_input.split(',') | map('trim') | reject('eq', '') | list }}
+
+triggers:
+  - trigger: sun
+    event: sunset
+    offset: !input sunset_offset
+    id: before_sunset
+  - trigger: state
+    entity_id: !input people
+    to: home
+    id: arrived
+  - trigger: numeric_state
+    entity_id: !input home_zone
+    below: 1
+    id: everyone_left
+  - trigger: time
+    at: !input off_time
+    id: off_time
+
+conditions:
+  - alias: The tree is plugged in
+    condition: template
+    value_template: "{{ states(tree_entity) in ['on', 'off'] }}"
+
+actions:
+  - choose:
+      - alias: Before sunset, someone home → on
+        conditions:
+          - condition: trigger
+            id: before_sunset
+          - condition: numeric_state
+            entity_id: !input home_zone
+            above: 0
+          - condition: template
+            value_template: "{{ is_state(tree_entity, 'off') }}"
+        sequence:
+          - action: homeassistant.turn_on
+            target:
+              entity_id: !input tree
+      - alias: Someone arrives in the evening → on
+        conditions:
+          - condition: trigger
+            id: arrived
+          - alias: After the evening start (until midnight)
+            condition: sun
+            after: sunset
+            after_offset: !input sunset_offset
+          - alias: Before the switch-off time (when it is earlier than midnight)
+            condition: template
+            value_template: >-
+              {{ off_time_input in ['00:00', '00:00:00']
+                 or now().strftime('%H:%M:%S') < off_time_input }}
+          - condition: template
+            value_template: "{{ is_state(tree_entity, 'off') }}"
+        sequence:
+          - action: homeassistant.turn_on
+            target:
+              entity_id: !input tree
+      - alias: Everyone left → off
+        conditions:
+          - condition: trigger
+            id: everyone_left
+          - condition: template
+            value_template: "{{ is_state(tree_entity, 'on') }}"
+        sequence:
+          - action: homeassistant.turn_off
+            target:
+              entity_id: !input tree
+      - alias: Switch-off time → off, except late nights
+        conditions:
+          - condition: trigger
+            id: off_time
+          - condition: template
+            value_template: "{{ is_state(tree_entity, 'on') }}"
+          - alias: The evening that is ending is not a late night
+            condition: template
+            value_template: >-
+              {% set evening = now() - timedelta(hours=12) if now().hour < 12 else now() %}
+              {{ evening.strftime('%m-%d') not in late_nights_list }}
+        sequence:
+          - action: homeassistant.turn_off
+            target:
+              entity_id: !input tree

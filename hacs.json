@@ -1,0 +1,6 @@
+{
+  "name": "Festive Overlay Card",
+  "filename": "festive-overlay-card.js",
+  "render_readme": true,
+  "homeassistant": "2025.1.0"
+}

@@ -1,0 +1,20 @@
+# A festive accent for any dark theme: deep red primary, gold accent.
+# Copy into your themes folder (or a themes: include) and pick "Festive" in your profile,
+# or switch to it automatically with frontend.set_theme while the tree is on.
+Festive:
+  primary-color: "#b3122a"
+  accent-color: "#f2b84b"
+  state-icon-active-color: "#f2b84b"
+  ha-card-border-radius: "16px"
+  ha-card-border-color: "rgba(255, 210, 120, 0.35)"
+  ha-card-box-shadow: "0 0 18px rgba(255, 190, 80, 0.12)"
+  modes:
+    dark:
+      card-background-color: "rgba(28, 22, 24, 0.82)"
+      primary-background-color: "#120d0e"
+      secondary-background-color: "#1b1416"
+      app-header-background-color: "#3a0c14"
+      app-header-text-color: "#ffe6b0"
+    light:
+      app-header-background-color: "#b3122a"
+      app-header-text-color: "#ffffff"

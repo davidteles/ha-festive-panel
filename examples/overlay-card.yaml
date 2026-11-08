@@ -1,0 +1,16 @@
+# Snow, string lights and glow while the tree is on.
+# Put this card anywhere on a view (the first section is a good place).
+type: custom:festive-overlay-card
+entity: light.christmas_tree
+effects:
+  - snow
+  - lights
+  - glow
+snow: normal
+---
+# Snow only, every day from 1 December to 6 January, no entity needed.
+type: custom:festive-overlay-card
+effects: [snow]
+season:
+  from: "12-01"
+  to: "01-06"
