@@ -19,7 +19,7 @@ A pure-CSS overlay: no images, no JavaScript animation loop, so it is light enou
 
 ### Install
 
-**With HACS** (once this repository is public):
+**With HACS:**
 
 1. HACS → ⋮ → **Custom repositories** → add `https://github.com/davidteles/ha-festive-panel` as **Dashboard**.
 2. Install **Festive Overlay Card**, then reload the browser.
