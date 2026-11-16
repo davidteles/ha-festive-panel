@@ -49,6 +49,24 @@ season:
   to: "01-06"
 ```
 
+### Auto / On / Off switch
+
+Let anyone in the house choose: **Auto** follows the tree light, **On** shows the effects all the time, **Off** never. Add the two helpers from [`examples/festive-mode-package.yaml`](examples/festive-mode-package.yaml) (a package, or the same settings in the UI), then point the card at the result:
+
+```yaml
+type: custom:festive-overlay-card
+entity: binary_sensor.festive_mode_active
+```
+
+Put the selector anywhere on the dashboard, for example as a tile:
+
+```yaml
+type: tile
+entity: input_select.festive_mode
+features:
+  - type: select-options
+```
+
 Want it on every page? Add the card to each view — or to one view and use it as your festive "home".
 
 ### Options

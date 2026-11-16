@@ -1,0 +1,25 @@
+# Festive mode: Auto / On / Off, so anyone can switch the effects from a dashboard.
+#   Auto = follow the tree light, On = always, Off = never.
+# Save as /config/packages/festive_mode.yaml (with `homeassistant: packages: !include_dir_named packages`
+# in configuration.yaml), or create the two helpers in the UI with the same settings.
+# Then use `entity: binary_sensor.festive_mode_active` on the festive overlay card.
+
+input_select:
+  festive_mode:
+    name: Festive mode
+    icon: mdi:pine-tree
+    options:
+      - "Auto"
+      - "On"
+      - "Off"
+    initial: "Auto"
+
+template:
+  - binary_sensor:
+      - name: Festive mode active
+        unique_id: festive_mode_active
+        icon: mdi:pine-tree
+        # Change light.christmas_tree to your own tree light or switch.
+        state: >-
+          {{ is_state('input_select.festive_mode', 'On')
+             or (is_state('input_select.festive_mode', 'Auto') and is_state('light.christmas_tree', 'on')) }}
