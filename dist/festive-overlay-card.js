@@ -7,7 +7,7 @@
  * MIT License
  */
 
-const CARD_VERSION = "0.1.1";
+const CARD_VERSION = "0.3.1";
 
 const SNOW_LEVELS = {
   light: { near: 0.55, far: 0.4, speedNear: 22, speedFar: 14 },

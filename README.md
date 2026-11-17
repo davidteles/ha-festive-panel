@@ -4,12 +4,24 @@ Make your Home Assistant dashboards feel like the holidays — **falling snow, a
 
 Built for wall-mounted tablets, but it works on any dashboard, phone or desktop.
 
-| Piece | What it does | Needs |
+## The quick win: just the snow (2 minutes, nothing else to install)
+
+1. Install **Festive Overlay Card** ([with HACS or by hand](#install)) and reload the browser.
+2. Edit a dashboard, add a **Manual** card and paste:
+   ```yaml
+   type: custom:festive-overlay-card
+   ```
+3. Save. Snow, string lights and a warm glow appear over the whole view; your taps still reach the cards underneath.
+
+That's the whole overlay: no Mushroom, no card-mod, no helpers. **To remove it,** delete that card (and, if you like, uninstall the card in HACS). Everything below is optional and independent.
+
+| If you want… | Add | Needs |
 |---|---|---|
-| [`festive-overlay-card`](#festive-overlay-card) | Full-screen snow, string lights and glow. Clicks pass straight through. | Nothing else |
-| [Festive tree schedule](#festive-tree-schedule-blueprint) (blueprint) | Tree on before sunset when someone is home, off when everyone leaves and at night, with late nights for Christmas Eve and New Year's Eve | Home Assistant 2025.1+ |
-| [Countdown card](#christmas-countdown-card) (example) | "17 days to Christmas · tap to light it", with a festive glow while the tree is on | Mushroom, card-mod |
-| [Festive theme](#festive-theme) | Deep red and gold accent for dark or light mode | Nothing else |
+| The overlay only while the tree is on, or only in December | [`entity` / `season` options](#use) | Nothing else |
+| An Auto / On / Off switch for the family | [Two helpers](#auto--on--off-switch) | Nothing else |
+| The tree to switch itself on and off | [Tree schedule blueprint](#festive-tree-schedule-blueprint) | Home Assistant 2025.1+ |
+| A countdown card | [Countdown example](#christmas-countdown-card) | Mushroom, card-mod |
+| Red-and-gold colours | [Festive theme](#festive-theme) | Nothing else |
 
 ---
 
@@ -137,9 +149,23 @@ actions:
 
 ---
 
+## Remove it
+
+Each piece comes off on its own:
+
+- **Overlay:** delete the card from each view. To remove the code too, uninstall *Festive Overlay Card* in HACS (or delete `www/festive-overlay-card.js` and its entry under Dashboards → ⋮ → Resources) and reload the browser.
+- **Auto / On / Off:** delete the two helpers (or the package file) and point any remaining overlay card back at your tree, or at nothing.
+- **Tree schedule:** delete or disable the automation; the blueprint itself can stay.
+- **Countdown card and theme:** delete the card; pick another theme in your profile.
+
+## Testing
+
+`node tests/card.test.js` checks the overlay card without a browser (season across the new year, taps passing through, reduced motion, edit mode, entity states, config errors). It runs on every change. What needs a real dashboard or tree is in [tests/CHECKLIST.md](tests/CHECKLIST.md).
+
 ## Ideas and contributions
 
 Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Ideas on the list: more effects (stars, confetti for New Year), a visual editor for the card, and other seasons.
+
 
 ## License
 
