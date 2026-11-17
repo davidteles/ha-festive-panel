@@ -14,6 +14,8 @@ jobs:
         with:
           node-version: "22"
       - run: node --check dist/festive-overlay-card.js
+      - name: Card tests (season, taps, reduced motion, edit mode, states, errors)
+        run: node tests/card.test.js
 
   yaml:
     runs-on: ubuntu-latest
