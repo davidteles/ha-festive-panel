@@ -36,6 +36,18 @@ blueprint:
           multiple: true
           filter:
             - domain: person
+    guest_switch:
+      name: Guest at home switch (optional)
+      description: >-
+        A toggle (e.g. an input_boolean "Guest at home") that is on while someone
+        stays in the house without you. While it is on, the house counts as
+        occupied: the tree still comes on before sunset and is not switched off
+        when you all leave.
+      default: []
+      selector:
+        entity:
+          filter:
+            - domain: [input_boolean, switch, binary_sensor]
     sunset_offset:
       name: Sunset offset
       description: >-
@@ -67,6 +79,8 @@ variables:
   tree_entity: !input tree
   off_time_input: !input off_time
   late_nights_input: !input late_nights
+  guest_switch: !input guest_switch
+  guest_home: "{{ guest_switch not in ['', none, []] and is_state(guest_switch, 'on') }}"
   late_nights_list: >-
     {{ late_nights_input.split(',') | map('trim') | reject('eq', '') | list }}
 
@@ -98,9 +112,14 @@ actions:
         conditions:
           - condition: trigger
             id: before_sunset
-          - condition: numeric_state
-            entity_id: !input home_zone
-            above: 0
+          - alias: Someone home, or a guest
+            condition: or
+            conditions:
+              - condition: numeric_state
+                entity_id: !input home_zone
+                above: 0
+              - condition: template
+                value_template: "{{ guest_home }}"
           - condition: template
             value_template: "{{ is_state(tree_entity, 'off') }}"
         sequence:
@@ -130,6 +149,9 @@ actions:
         conditions:
           - condition: trigger
             id: everyone_left
+          - alias: No guest at home
+            condition: template
+            value_template: "{{ not guest_home }}"
           - condition: template
             value_template: "{{ is_state(tree_entity, 'on') }}"
         sequence:
