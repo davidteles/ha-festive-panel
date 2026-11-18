@@ -4,6 +4,10 @@ Make your Home Assistant dashboards feel like the holidays — **falling snow, a
 
 Built for wall-mounted tablets, but it works on any dashboard, phone or desktop.
 
+![The same dashboard before and after: snow, a string of lights at the top and the festive theme](docs/images/festive-before-after.png)
+
+<sub>Before and after on a sample home (Home Assistant's demo devices, made-up people). The snow and lights move; this is a still.</sub>
+
 ## The quick win: just the snow (2 minutes, nothing else to install)
 
 1. Install **Festive Overlay Card** ([with HACS or by hand](#install)) and reload the browser.
