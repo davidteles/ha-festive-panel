@@ -4,6 +4,8 @@ Make your Home Assistant dashboards feel like the holidays — **falling snow, a
 
 Built for wall-mounted tablets, but it works on any dashboard, phone or desktop.
 
+On a wall tablet, it sits on top of whatever dashboard you use, for example [Wall Panel Kit](https://github.com/davidteles/ha-wall-panel-kit), the dashboard you touch, or under [Glass Info](https://github.com/davidteles/ks-glass-info), what the tablet shows while idle. Tested with Home Assistant **2026.11.2**.
+
 ![The same dashboard before and after: snow, a string of lights at the top and the festive theme](docs/images/festive-before-after.png)
 
 <sub>Before and after on a sample home (Home Assistant's demo devices, made-up people). The snow and lights move; this is a still.</sub>
